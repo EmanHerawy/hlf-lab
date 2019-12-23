@@ -1,0 +1,152 @@
+[
+    {
+        "id": "5f244cf0.ee2294",
+        "type": "tab",
+        "label": "Exercise 09",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "6c0d5167.f656d",
+        "type": "websocket in",
+        "z": "5f244cf0.ee2294",
+        "name": "",
+        "server": "a17028ac.be9388",
+        "client": "",
+        "x": 123,
+        "y": 299,
+        "wires": [
+            [
+                "675c1f40.ae8d3"
+            ]
+        ]
+    },
+    {
+        "id": "98a1793b.b6434",
+        "type": "debug",
+        "z": "5f244cf0.ee2294",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "x": 583,
+        "y": 219,
+        "wires": []
+    },
+    {
+        "id": "675c1f40.ae8d3",
+        "type": "function",
+        "z": "5f244cf0.ee2294",
+        "name": "Format Message",
+        "func": "const e = JSON.parse(msg.payload);\nlet eventName = e.$class.split('.')[3];\n\nif (eventName === 'InspectVehicleEvent') {\n    let isImportable = '';\n    if (e.isImportable) {\n        isImportable = 'FIT FOR IMPORT';\n    } else {\n        isImportable = 'NOT FIT FOR IMPORT';\n    }\n    vehicle = e.vehicle.vin;\n    timestamp = new Date(e.timestamp);\n    msg.payload = `${eventName}: Vehicle with VIN Number ${vehicle} is declared ${isImportable} on ${timestamp.toDateString()}`;\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 383,
+        "y": 299,
+        "wires": [
+            [
+                "98a1793b.b6434",
+                "30a8a622.f3041a"
+            ]
+        ],
+        "inputLabels": [
+            "msg"
+        ]
+    },
+    {
+        "id": "30a8a622.f3041a",
+        "type": "file",
+        "z": "5f244cf0.ee2294",
+        "name": "Event Storage",
+        "filename": "/tmp/events",
+        "appendNewline": true,
+        "createDir": true,
+        "overwriteFile": "false",
+        "x": 593,
+        "y": 379,
+        "wires": [],
+        "inputLabels": [
+            "msg.payload"
+        ]
+    },
+    {
+        "id": "a3faed66.ee62",
+        "type": "inject",
+        "z": "5f244cf0.ee2294",
+        "name": "Inspect Vehicle",
+        "topic": "",
+        "payload": "{\"$class\":\"org.acme.vehicle_network.InspectVehicle\",\"vehicle\":\"org.acme.vehicle_network.Vehicle#71QR\"}",
+        "payloadType": "json",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "x": 120,
+        "y": 80,
+        "wires": [
+            [
+                "66157f4e.c57078"
+            ]
+        ]
+    },
+    {
+        "id": "66157f4e.c57078",
+        "type": "http request",
+        "z": "5f244cf0.ee2294",
+        "name": "",
+        "method": "POST",
+        "ret": "obj",
+        "url": "http://localhost:3000/api/org.acme.vehicle_network.InspectVehicle",
+        "tls": "",
+        "x": 330,
+        "y": 80,
+        "wires": [
+            [
+                "4fe888ef.b54fa"
+            ]
+        ]
+    },
+    {
+        "id": "4fe888ef.b54fa",
+        "type": "debug",
+        "z": "5f244cf0.ee2294",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 550,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "9f4da3b7.1951a8",
+        "type": "comment",
+        "z": "5f244cf0.ee2294",
+        "name": "Invoke Transaction",
+        "info": "",
+        "x": 290,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "d81e7eb2.844db8",
+        "type": "comment",
+        "z": "5f244cf0.ee2294",
+        "name": "Capture Events",
+        "info": "",
+        "x": 300,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "a17028ac.be9388",
+        "type": "websocket-listener",
+        "z": "",
+        "path": "ws://localhost:3000",
+        "wholemsg": "false"
+    }
+]
